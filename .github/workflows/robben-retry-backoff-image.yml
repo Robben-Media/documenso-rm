@@ -40,3 +40,7 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: ghcr.io/robben-media/documenso-rm:retry-backoff-${{ github.sha }}
+      - name: Publish package visibility
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method PATCH /orgs/Robben-Media/packages/container/documenso-rm/visibility -f visibility=public
