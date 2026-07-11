@@ -1,6 +1,8 @@
 name: Robben Media Retry-Backoff Image
 
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
   workflow_dispatch:
@@ -19,6 +21,7 @@ jobs:
       - run: npm test -w @documenso/lib -- --run jobs/client/retry.test.ts
 
   build_and_publish:
+    if: github.event_name == 'push'
     name: Build Linux amd64 image
     needs: retry_backoff_test
     runs-on: ubuntu-latest
