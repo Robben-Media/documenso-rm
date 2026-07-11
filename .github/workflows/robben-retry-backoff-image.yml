@@ -22,25 +22,21 @@ jobs:
 
   build_and_publish:
     if: github.event_name == 'push'
-    name: Build Linux amd64 image
+    name: Build Linux amd64 image artifact
     needs: retry_backoff_test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/build-push-action@v6
         with:
           context: .
           file: ./docker/Dockerfile
           platforms: linux/amd64
-          push: true
-          tags: ghcr.io/robben-media/documenso-rm:retry-backoff-${{ github.sha }}
-      - name: Publish package visibility
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh api --method PATCH /orgs/Robben-Media/packages/container/documenso-rm/visibility -f visibility=public
+          outputs: type=docker,dest=/tmp/documenso-rm-retry-backoff.tar
+          tags: documenso-rm:retry-backoff-${{ github.sha }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: documenso-rm-retry-backoff-image
+          path: /tmp/documenso-rm-retry-backoff.tar
+          retention-days: 7
